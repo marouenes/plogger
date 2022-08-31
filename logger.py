@@ -104,6 +104,7 @@ class pdf_context(AbstractContextManager):
         return caught_error
 
 # test
+# TODO: move to unit test module
 logger = pdf_logger()
 with pdf_context(logger, 'Page A') as ctx_A:
     pass
