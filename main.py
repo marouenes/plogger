@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from collections import OrderedDict, namedtuple
 from contextlib import AbstractContextManager
 import logging
