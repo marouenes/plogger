@@ -1,11 +1,15 @@
-from collections import OrderedDict, namedtuple
-from contextlib import AbstractContextManager
-import logging
+from __future__ import annotations
+
 import json
+import logging
+from collections import namedtuple
+from collections import OrderedDict
+from contextlib import AbstractContextManager
 
 
 # initialize logging
 logging.basicConfig(level=logging.INFO)
+
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -14,7 +18,8 @@ class JSONEncoder(json.JSONEncoder):
 
 
 class pdf_logger(JSONEncoder):
-    """ Class for logging to console and structured json file """
+    """Class for logging to console and structured json file"""
+
     log_entry = namedtuple('log_entry', ['name', 'message'])
 
     def __init__(self):
@@ -47,28 +52,29 @@ class pdf_logger(JSONEncoder):
 
 
 class PDF_Error(RuntimeError):
-    """ Superclass for special purpose exceptions types used by the pdf generator.
+    """Superclass for special purpose exceptions types used by the pdf generator.
 
     An exception can be marked as critical. Non critical errors is ignored
     by the pdf_context context manager.
     """
+
     def __init__(self, value, critical=True):
-        super(PDF_Error, self).__init__(value)
+        super().__init__(value)
         self.critical = critical
 
 
 class BadData(PDF_Error):
-    """ Exception that documents some issue about input data
+    """Exception that documents some issue about input data
 
     Exceptions of this type is by default not critical.
     """
 
     def __init__(self, value, critical=False):
-        super(BadData, self).__init__(value, critical=critical)
+        super().__init__(value, critical=critical)
 
 
 class pdf_context(AbstractContextManager):
-    """ Context manager for handling errors and logging
+    """Context manager for handling errors and logging
 
     If no error is caught and the execution exit the context normally,
     the string 'ok' is logged to the item_name provided in the constructor.
@@ -87,7 +93,7 @@ class pdf_context(AbstractContextManager):
         return self
 
     def __exit__(self, error_type, error, traceback):
-        #print(error_type, error, traceback)
+        # print(error_type, error, traceback)
         caught_error = False
 
         if error is None:
@@ -95,13 +101,15 @@ class pdf_context(AbstractContextManager):
         else:
             self._error = error
 
-            self._logger.log(self._item_name, error_type.__name__ + ': ' + str(error))
-
+            self._logger.log(
+                self._item_name, error_type.__name__ + ': ' + str(error),
+            )
 
             if isinstance(error, PDF_Error):
                 caught_error = not error.critical  # Only catch non critical errors
 
         return caught_error
+
 
 # test
 # TODO: move to unit test module
