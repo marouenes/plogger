@@ -2,22 +2,25 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+from abc import abstractmethod
 from collections import namedtuple
 from collections import OrderedDict
 from contextlib import AbstractContextManager
+from datetime import datetime
 
 
 # initialize logging, TODO: use the helper logging library instead?
 logging.basicConfig(level=logging.INFO)
 
 
-class JSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, OrderedDict):
-            return list(obj.items())
+# class JSONEncoder(json.JSONEncoder):
+#     def default(self, obj):
+#         if isinstance(obj, OrderedDict):
+#             return list(obj.items())
 
 
-class pdf_logger(JSONEncoder):
+class pdf_logger:
     """Class for logging to console and structured json file"""
 
     log_entry = namedtuple('log_entry', ['name', 'message'])
@@ -27,10 +30,10 @@ class pdf_logger(JSONEncoder):
 
     def log(self, name, message):
         # TODO: Use proper library for logging
-        self.JSONEncoder = logging.StreamHandler(self._history)
         print(f'<{name}>:', message)
         self._history.append(pdf_logger.log_entry(name, message))
 
+    @abstractmethod
     def to_json(self, slim=False):
         structure = OrderedDict()
         for entry in self._history:
@@ -49,6 +52,26 @@ class pdf_logger(JSONEncoder):
             structure = slim_structure
 
         return json.dumps(structure, indent=4)
+
+    def to_file(self, filename, slim=False, overwrite=False, *, force=False):
+        # # fail safe solution to avoid overwriting files
+        # if force and os.path.exists(filename):
+        #     os.remove(filename)
+
+        if overwrite:
+            mode = 'w'
+        else:
+            mode = 'a'
+
+        # Add a timestamp to each log entry
+        with open(filename, mode) as file:
+            # do not include a blank line at the beginning of the file
+            if os.stat(filename).st_size != 0:
+                file.write('\n')
+            file.write(
+                f'Log started at: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n',
+            )
+            file.write(self.to_json(slim=slim))
 
 
 class PDF_Error(RuntimeError):
@@ -102,11 +125,14 @@ class pdf_context(AbstractContextManager):
             self._error = error
 
             self._logger.log(
-                self._item_name, error_type.__name__ + ': ' + str(error),
+                self._item_name,
+                error_type.__name__ + ': ' + str(error),
             )
 
             if isinstance(error, PDF_Error):
-                caught_error = not error.critical  # Only catch non critical errors
+                caught_error = (
+                    not error.critical
+                )  # Only catch non critical errors
 
         return caught_error
 
@@ -114,6 +140,8 @@ class pdf_context(AbstractContextManager):
 # test
 # TODO: move to unit test module
 logger = pdf_logger()
+
+print('============ context manager test ============')
 with pdf_context(logger, 'Page A') as ctx_A:
     pass
 
@@ -123,10 +151,23 @@ with pdf_context(logger, 'Page B') as ctx_B:
 with pdf_context(logger, 'Page C') as ctx_C:
     pass
 
-# TODO:
-# Handle visual things using the Error information in ctx
+# TODO: Handle visual things using the Error information in ctx?
+for entry in logger._history:
+    if ctx_A._error:
+        print(f'Error in {ctx_A._item_name}: {ctx_A._error}')
+        break
+    if ctx_B._error:
+        print(f'Error in {ctx_B._item_name}: {ctx_B._error}')
+        break
+    if ctx_C._error:
+        print(f'Error in {ctx_C._item_name}: {ctx_C._error}')
+        break
 
-print()
-print('json log')
-print(logger.to_json(slim=True))
+
+print('============ json dump test ============')
+print('json_log.log')
+print(logger.to_json(slim=False))
+print('============ json slim test ============')
 print(logger._history)
+print('============ file handler test ============')
+logger.to_file('json_log.log', slim=False, overwrite=False)
