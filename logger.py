@@ -7,7 +7,7 @@ from collections import OrderedDict
 from contextlib import AbstractContextManager
 
 
-# initialize logging
+# initialize logging, TODO: use the helper logging library instead?
 logging.basicConfig(level=logging.INFO)
 
 
