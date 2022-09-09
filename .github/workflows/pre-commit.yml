@@ -14,3 +14,12 @@ jobs:
     - uses: pre-commit/action@v3.0.0
       with:
         extra_args: flake8 --all-files
+    - uses: pre-commit/action@v3.0.0
+      with:
+        extra_args: reorder-python-imports --all-files
+    - uses: pre-commit/action@v3.0.0
+      with:
+        extra_args: add-trailing-comma --all-files
+    - uses: pre-commit/action@v3.0.0
+      with:
+        extra_args: autopep8 --all-files
