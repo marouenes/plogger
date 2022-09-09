@@ -1,6 +1,8 @@
 # Development comments
 
-List of TODOs:
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/marouenes/wrapped-logger/master.svg)](https://results.pre-commit.ci/latest/github/marouenes/wrapped-logger/master)
+
+List of TODOs (FIXEME PLEAZE):
 
 - [X] Fixed hierarchy depth = 1
 - [X] Log to console
