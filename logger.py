@@ -143,8 +143,9 @@ class pdf_context(AbstractContextManager):
 logger = pdf_logger()
 
 # send traces to sentry
+dsn_key = os.getenv('SENTRY_DSN')
 sentry_sdk.init(
-    dsn='https://013da30727a0486ba61fc38967f7874e@o1424581.ingest.sentry.io/6772723',
+    dsn=dsn_key,
     traces_sample_rate = 1.0,
 )
 
