@@ -8,6 +8,7 @@ from collections import namedtuple
 from collections import OrderedDict
 from contextlib import AbstractContextManager
 from datetime import datetime
+
 import sentry_sdk
 from dotenv import load_dotenv
 
@@ -146,11 +147,15 @@ logger = pdf_logger()
 # send traces to sentry
 load_dotenv()
 dsn_key = os.getenv('SENTRY_DSN')
-sentry_sdk.init(
-    dsn=dsn_key,
-    traces_sample_rate = 1.0,
-)
+sentry_sdk.init(dsn=dsn_key, traces_sample_rate=1.0)
 
+# raise an error for trace testing
+# try:
+#     raise BadData('Test error', critical=False)
+# except BadData as e:
+#     logger.log('test', e)
+
+# log to file
 print('============ context manager test ============')
 with pdf_context(logger, 'Page A') as ctx_A:
     pass
