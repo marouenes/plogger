@@ -9,6 +9,7 @@ from collections import OrderedDict
 from contextlib import AbstractContextManager
 from datetime import datetime
 import sentry_sdk
+from dotenv import load_dotenv
 
 
 # initialize logging, TODO: use the helper logging library instead?
@@ -143,6 +144,7 @@ class pdf_context(AbstractContextManager):
 logger = pdf_logger()
 
 # send traces to sentry
+load_dotenv()
 dsn_key = os.getenv('SENTRY_DSN')
 sentry_sdk.init(
     dsn=dsn_key,
