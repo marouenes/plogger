@@ -8,6 +8,7 @@ from collections import namedtuple
 from collections import OrderedDict
 from contextlib import AbstractContextManager
 from datetime import datetime
+import sentry_sdk
 
 
 # initialize logging, TODO: use the helper logging library instead?
@@ -140,6 +141,12 @@ class pdf_context(AbstractContextManager):
 # test
 # TODO: move to unit test module
 logger = pdf_logger()
+
+# send traces to sentry
+sentry_sdk.init(
+    dsn='https://013da30727a0486ba61fc38967f7874e@o1424581.ingest.sentry.io/6772723',
+    traces_sample_rate = 1.0,
+)
 
 print('============ context manager test ============')
 with pdf_context(logger, 'Page A') as ctx_A:
